@@ -1,0 +1,73 @@
+name: Deploy Dev
+
+on:
+  push:
+    branches:
+      - dev
+    paths:
+      - 'environments/dev/**'
+      - 'modules/**'
+
+jobs:
+  terraform:
+    name: Terraform Plan & Apply (Dev)
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: environments/dev
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: 1.7.0
+
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: eu-west-1
+
+      - name: Terraform Format
+        run: terraform fmt -check -recursive
+        working-directory: .
+
+      - name: Create State Bucket (if not exists)
+        run: |
+          aws s3api head-bucket --bucket globeleq-terraform-state-574548986680 2>/dev/null || \
+          aws s3api create-bucket \
+            --bucket globeleq-terraform-state-574548986680 \
+            --region eu-west-1 \
+            --create-bucket-configuration LocationConstraint=eu-west-1
+
+      - name: Terraform Init
+        run: terraform init -upgrade
+
+      - name: Terraform Validate
+        run: terraform validate
+
+      - name: Import Existing Resources (one-time)
+        run: |
+          # Import resources created in previous runs (skip if already in state)
+          terraform import module.storage.aws_s3_bucket.bronze globeleq-dev-bronze 2>/dev/null || true
+          terraform import module.storage.aws_s3_bucket.silver globeleq-dev-silver 2>/dev/null || true
+          terraform import module.storage.aws_s3_bucket.gold globeleq-dev-gold 2>/dev/null || true
+          terraform import module.iam.aws_iam_role.this globeleq-dev-role 2>/dev/null || true
+          terraform import module.iam.aws_iam_policy.this arn:aws:iam::574548986680:policy/globeleq-dev-policy 2>/dev/null || true
+          terraform import module.network.aws_vpc.main vpc-085b9f90bfde25323 2>/dev/null || true
+          terraform import module.network.aws_internet_gateway.igw igw-0cf7da0bb82918bd7 2>/dev/null || true
+          terraform import module.network.aws_subnet.public[0] subnet-0992425c5fa309e79 2>/dev/null || true
+          terraform import module.network.aws_route_table.public rtb-076032e94e62dbf1f 2>/dev/null || true
+          terraform import module.network.aws_route_table_association.public[0] rtbassoc-0134f4188d23d738f/rtb-076032e94e62dbf1f 2>/dev/null || true
+          terraform import module.network.aws_security_group.default sg-0348442577fdd9fb6 2>/dev/null || true
+          terraform import module.compute.aws_security_group.ec2 sg-02db546f945ef9aad 2>/dev/null || true
+
+      - name: Terraform Plan
+        run: terraform plan -out=tfplan
+
+      - name: Terraform Apply
+        run: terraform apply -auto-approve tfplan

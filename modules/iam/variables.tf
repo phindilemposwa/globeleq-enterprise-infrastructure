@@ -1,5 +1,5 @@
 variable "environment" {
-  description = "The environment this IAM role is for (e.g. dev, qa, prod)"
+  description = "Environment name (dev, qa, prod)"
   type        = string
 }
 
@@ -8,4 +8,3 @@ variable "assume_role_principals" {
   type        = list(string)
   default     = []
 }
-

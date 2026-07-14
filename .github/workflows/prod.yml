@@ -1,0 +1,57 @@
+name: Deploy Prod
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'environments/prod/**'
+      - 'modules/**'
+
+jobs:
+  terraform:
+    name: Terraform Plan & Apply (Prod)
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: environments/prod
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: 1.7.0
+
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: eu-west-1
+
+      - name: Terraform Format
+        run: terraform fmt -check -recursive
+        working-directory: .
+
+      - name: Create State Bucket (if not exists)
+        run: |
+          aws s3api head-bucket --bucket globeleq-terraform-state-574548986680 2>/dev/null || \
+          aws s3api create-bucket \
+            --bucket globeleq-terraform-state-574548986680 \
+            --region eu-west-1 \
+            --create-bucket-configuration LocationConstraint=eu-west-1
+
+      - name: Terraform Init
+        run: terraform init -upgrade
+
+      - name: Terraform Validate
+        run: terraform validate
+
+      - name: Terraform Plan
+        run: terraform plan -out=tfplan
+
+      - name: Terraform Apply
+        run: terraform apply -auto-approve tfplan
