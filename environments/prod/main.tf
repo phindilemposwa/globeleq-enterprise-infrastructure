@@ -12,10 +12,10 @@ module "iam" {
 module "network" {
   source = "../../modules/network"
 
-  environment        = "prod"
-  vpc_cidr           = var.vpc_cidr
+  environment         = "prod"
+  vpc_cidr            = var.vpc_cidr
   public_subnet_cidrs = var.public_subnet_cidrs
-  availability_zones = var.availability_zones
+  availability_zones  = var.availability_zones
 }
 
 module "storage" {
