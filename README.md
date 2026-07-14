@@ -21,7 +21,7 @@ globeleq-enterprise-infrastructure/
 ├── README.md
 └── LICENSE
 ```
-
+#
 ## Module Build Order (Free Tier Safe)
 
 1. **IAM** ✅ — Roles and policies
