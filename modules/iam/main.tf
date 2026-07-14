@@ -4,7 +4,7 @@
 # =============================================================================
 
 resource "aws_iam_role" "this" {
-  name = "terraform-${var.environment}-role"
+  name = "globeleq-${var.environment}-role"
 
   assume_role_policy = jsonencode({
     Version = "2012-10-17"
@@ -24,7 +24,7 @@ resource "aws_iam_role" "this" {
 }
 
 resource "aws_iam_policy" "this" {
-  name        = "terraform-${var.environment}-policy"
+  name        = "globeleq-${var.environment}-policy"
   description = "Policy allowing Terraform to manage resources in ${var.environment}"
 
   policy = jsonencode({
