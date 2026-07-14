@@ -14,9 +14,9 @@ variable "subnet_id" {
 }
 
 variable "instance_type" {
-  description = "EC2 instance type (stick to free tier: t2.micro)"
+  description = "EC2 instance type (stick to free tier: t3.micro)"
   type        = string
-  default     = "t2.micro"
+  default     = "t3.micro"
 }
 
 variable "key_name" {
