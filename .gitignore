@@ -2,12 +2,25 @@
 **/.terraform/*
 *.tfstate
 *.tfstate.*
+*.terraform.lock.hcl
+*.tfplan
 
-# Variable files
-*.tfvars
+# Crash logs
+crash.log
+crash.*.log
+
+# Override files
+override.tf
+override.tf.json
+*_override.tf
+*_override.tf.json
+
+# Variable files (uncomment if you want to keep tfvars out of source control)
+# *.tfvars
 
 # IDE
 .vscode/
+.idea/
 
 # OS
 .DS_Store

@@ -1,3 +1,8 @@
+# =============================================================================
+# IAM Module
+# Manages: Roles, Policies, Instance Profiles
+# =============================================================================
+
 resource "aws_iam_role" "this" {
   name = "terraform-${var.environment}-role"
 
@@ -11,11 +16,16 @@ resource "aws_iam_role" "this" {
       Action = "sts:AssumeRole"
     }]
   })
+
+  tags = {
+    Environment = var.environment
+    ManagedBy   = "terraform"
+  }
 }
 
 resource "aws_iam_policy" "this" {
   name        = "terraform-${var.environment}-policy"
-  description = "Policy allowing Terraform to manage network & compute resources in ${var.environment}"
+  description = "Policy allowing Terraform to manage resources in ${var.environment}"
 
   policy = jsonencode({
     Version = "2012-10-17"
@@ -37,13 +47,34 @@ resource "aws_iam_policy" "this" {
           "ec2:AuthorizeSecurityGroupEgress",
           "ec2:RevokeSecurityGroupEgress",
           "ec2:DeleteSecurityGroup",
-          "ec2:RunInstances",
-          "ec2:TerminateInstances",
-          "ec2:StopInstances",
-          "ec2:StartInstances",
-          "ec2:DescribeInstances",
+          "ec2:CreateInternetGateway",
+          "ec2:DeleteInternetGateway",
+          "ec2:AttachInternetGateway",
+          "ec2:DetachInternetGateway",
+          "ec2:CreateRouteTable",
+          "ec2:DeleteRouteTable",
+          "ec2:CreateRoute",
+          "ec2:DeleteRoute",
+          "ec2:AssociateRouteTable",
+          "ec2:DisassociateRouteTable",
           "ec2:CreateTags",
           "ec2:DeleteTags"
+        ]
+        Resource = "*"
+      },
+      {
+        Effect = "Allow"
+        Action = [
+          "s3:CreateBucket",
+          "s3:DeleteBucket",
+          "s3:PutBucketPolicy",
+          "s3:GetBucketPolicy",
+          "s3:PutBucketVersioning",
+          "s3:PutEncryptionConfiguration",
+          "s3:PutLifecycleConfiguration",
+          "s3:ListBucket",
+          "s3:GetObject",
+          "s3:PutObject"
         ]
         Resource = "*"
       }
@@ -55,4 +86,3 @@ resource "aws_iam_role_policy_attachment" "this" {
   role       = aws_iam_role.this.name
   policy_arn = aws_iam_policy.this.arn
 }
-
