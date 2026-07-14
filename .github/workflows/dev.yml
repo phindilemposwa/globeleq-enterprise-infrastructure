@@ -36,6 +36,14 @@ jobs:
         run: terraform fmt -check -recursive
         working-directory: .
 
+      - name: Create State Bucket (if not exists)
+        run: |
+          aws s3api head-bucket --bucket globeleq-terraform-state-574548986680 2>/dev/null || \
+          aws s3api create-bucket \
+            --bucket globeleq-terraform-state-574548986680 \
+            --region eu-west-1 \
+            --create-bucket-configuration LocationConstraint=eu-west-1
+
       - name: Terraform Init
         run: terraform init -upgrade
 
