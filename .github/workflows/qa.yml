@@ -1,4 +1,4 @@
-name: Plan QA
+name: Deploy QA
 
 on:
   push:
@@ -10,7 +10,7 @@ on:
 
 jobs:
   terraform:
-    name: Terraform Plan (QA)
+    name: Terraform Plan & Apply (QA)
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -34,12 +34,24 @@ jobs:
 
       - name: Terraform Format
         run: terraform fmt -check -recursive
+        working-directory: .
+
+      - name: Create State Bucket (if not exists)
+        run: |
+          aws s3api head-bucket --bucket globeleq-terraform-state-574548986680 2>/dev/null || \
+          aws s3api create-bucket \
+            --bucket globeleq-terraform-state-574548986680 \
+            --region eu-west-1 \
+            --create-bucket-configuration LocationConstraint=eu-west-1
 
       - name: Terraform Init
-        run: terraform init
+        run: terraform init -upgrade
 
       - name: Terraform Validate
         run: terraform validate
 
       - name: Terraform Plan
-        run: terraform plan
+        run: terraform plan -out=tfplan
+
+      - name: Terraform Apply
+        run: terraform apply -auto-approve tfplan

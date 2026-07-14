@@ -24,3 +24,12 @@ module "storage" {
   environment = "qa"
   project     = "globeleq"
 }
+
+module "compute" {
+  source = "../../modules/compute"
+
+  environment = "qa"
+  vpc_id      = module.network.vpc_id
+  subnet_id   = module.network.public_subnet_ids[0]
+  key_name    = var.key_name
+}
