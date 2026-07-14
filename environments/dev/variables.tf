@@ -20,3 +20,9 @@ variable "assume_role_principals" {
   description = "AWS principals allowed to assume the IAM role"
   type        = list(string)
 }
+
+variable "key_name" {
+  description = "EC2 key pair name for SSH access (leave empty to skip)"
+  type        = string
+  default     = ""
+}
