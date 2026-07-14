@@ -5,10 +5,10 @@
 
 # Bronze bucket - raw data landing zone
 resource "aws_s3_bucket" "bronze" {
-  bucket = "${var.project}-${var.environment}-bronze"
+  bucket = "${var.project}-${var.environment}-bronze-layer"
 
   tags = {
-    Name        = "${var.project}-${var.environment}-bronze"
+    Name        = "${var.project}-${var.environment}-bronze-layer"
     Environment = var.environment
     Layer       = "bronze"
     ManagedBy   = "terraform"
@@ -17,10 +17,10 @@ resource "aws_s3_bucket" "bronze" {
 
 # Silver bucket - cleaned/transformed data
 resource "aws_s3_bucket" "silver" {
-  bucket = "${var.project}-${var.environment}-silver"
+  bucket = "${var.project}-${var.environment}-silver-layer"
 
   tags = {
-    Name        = "${var.project}-${var.environment}-silver"
+    Name        = "${var.project}-${var.environment}-silver-layer"
     Environment = var.environment
     Layer       = "silver"
     ManagedBy   = "terraform"
@@ -29,10 +29,10 @@ resource "aws_s3_bucket" "silver" {
 
 # Gold bucket - business-ready/aggregated data
 resource "aws_s3_bucket" "gold" {
-  bucket = "${var.project}-${var.environment}-gold"
+  bucket = "${var.project}-${var.environment}-gold-layer"
 
   tags = {
-    Name        = "${var.project}-${var.environment}-gold"
+    Name        = "${var.project}-${var.environment}-gold-layer"
     Environment = var.environment
     Layer       = "gold"
     ManagedBy   = "terraform"
